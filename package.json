@@ -1,0 +1,19 @@
+{
+  "name": "pkorg-exporter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "check": "biome check --write src test build.ts",
+    "lint": "biome lint src test build.ts",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@happy-dom/global-registrator": "^15.11.0",
+    "@types/bun": "^1.1.0",
+    "@types/chrome": "^0.0.270",
+    "typescript": "^5.6.0"
+  }
+}

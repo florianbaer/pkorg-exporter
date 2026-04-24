@@ -1,0 +1,45 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`rowsToXLS full fixture snapshot 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="header">
+   <Alignment ss:WrapText="1"/>
+   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11"/>
+   <Interior ss:Color="#1d6f42" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="title">
+   <Font ss:Bold="1" ss:Size="13"/>
+  </Style>
+  <Style ss:ID="normal">
+   <Alignment ss:WrapText="1" ss:Vertical="Top"/>
+  </Style>
+  <Style ss:ID="score">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Top"/>
+   <Font ss:Bold="1" ss:Size="12"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Bewertung">
+  <Table>
+   <Column ss:Width="180"/>
+   <Column ss:Width="200"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="60"/>
+   <Column ss:Width="250"/>
+   <Row><Cell ss:StyleID="title"><Data ss:Type="String">PkOrg Bewertung Export</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Candidate:</Data></Cell><Cell><Data ss:Type="String">Alice</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">Exported:</Data></Cell><Cell><Data ss:Type="String">01.01.2026, 12:00:00</Data></Cell></Row>
+   <Row></Row>
+   <Row ss:StyleID="header"><Cell><Data ss:Type="String">Section</Data></Cell><Cell><Data ss:Type="String">Criterion</Data></Cell><Cell><Data ss:Type="String">Description</Data></Cell><Cell><Data ss:Type="String">QL3</Data></Cell><Cell><Data ss:Type="String">QL2</Data></Cell><Cell><Data ss:Type="String">QL1</Data></Cell><Cell><Data ss:Type="String">QL0</Data></Cell><Cell><Data ss:Type="String">Pts</Data></Cell><Cell><Data ss:Type="String">Comment</Data></Cell></Row>
+   <Row><Cell ss:StyleID="normal"><Data ss:Type="String">Sec</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Crit</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Desc</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Q3</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Q2</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Q1</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Q0</Data></Cell><Cell ss:StyleID="score"><Data ss:Type="Number">3</Data></Cell><Cell ss:StyleID="normal"><Data ss:Type="String">Great</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+</Workbook>"
+`;

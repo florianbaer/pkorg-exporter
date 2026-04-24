@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "PkOrg Bewertung Export",
+  "version": "1.0.0",
+  "description": "Export PkOrg Bewertung evaluation to Excel",
+  "content_scripts": [
+    {
+      "matches": ["https://2026.pkorg.ch/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
