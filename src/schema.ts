@@ -49,7 +49,7 @@ export function buildExcelRows(
       if (!isCriterion(cv)) continue;
 
       const values = cv.config?.values;
-      const dom = domData[cv.key];
+      const dom = domData[cv.key] ?? domData[cv.name];
       const score = dom?.score ?? '';
       const comment = dom?.comment ?? '';
 

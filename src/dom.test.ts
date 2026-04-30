@@ -68,6 +68,59 @@ describe('readDomScoresAndComments', () => {
     `);
     expect(readDomScoresAndComments(dialog)).toEqual({});
   });
+
+  test('readonly mode: extracts score from text span and indexes by criterion name', () => {
+    cleanup();
+    const dialog = makeDialog(`
+      <table>
+        <tr class="level-1">
+          <td>
+            <span class="nl2br">A01: Job analysis</span>
+            <p class="description">How is the order analysed?</p>
+            <p class="comment"><strong>Comment Responsible specialist:</strong><br>
+              <span class="comment-body"><span ng-bind-html="processed">RS feedback</span></span>
+            </p>
+            <p class="comment"><strong>Comment Expert:</strong><br>
+              <span class="comment-body"><span ng-bind-html="processed">MEX: expert feedback</span></span>
+            </p>
+          </td>
+          <td><span>1 ×</span></td>
+          <td>
+            <span>2,0
+              <span class="max-points">/ 3</span>
+              <span class="diff-value-text">3,0</span>
+            </span>
+          </td>
+          <td><span>2,0</span></td>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+    `);
+
+    const result = readDomScoresAndComments(dialog);
+    const entry = result['A01: Job analysis'];
+    expect(entry?.score).toBe(2);
+    expect(entry?.comment).toContain('Comment Responsible specialist: RS feedback');
+    expect(entry?.comment).toContain('Comment Expert: MEX: expert feedback');
+  });
+
+  test('readonly mode: handles row with no diff-value-text', () => {
+    cleanup();
+    const dialog = makeDialog(`
+      <table>
+        <tr class="level-1">
+          <td><span class="nl2br">A02: Information research</span></td>
+          <td><span>1 ×</span></td>
+          <td>
+            <span>3,0
+              <span class="max-points">/ 3</span>
+            </span>
+          </td>
+        </tr>
+      </table>
+    `);
+    expect(readDomScoresAndComments(dialog)['A02: Information research']?.score).toBe(3);
+  });
 });
 
 describe('injectExportButton', () => {

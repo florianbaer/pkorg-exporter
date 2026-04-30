@@ -142,6 +142,24 @@ describe('buildExcelRows', () => {
     expect(dataRow?.cells[8]).toBe('solid work');
   });
 
+  test('falls back to criterion name when key is missing from DOM data', () => {
+    const schema: BewertungSchema = {
+      children: {
+        '1_Ausf': {
+          value: { name: 'Execution' },
+          children: { '01': makeCriterion('K/1_Ausf/01', 'A01: Job analysis') },
+        },
+      },
+    };
+    const dom: ScoreMap = {
+      'A01: Job analysis': { score: 2, comment: 'readonly fixture' },
+    };
+    const rows = buildExcelRows('Alice', schema, dom);
+    const dataRow = rows.find((r) => r.kind === ROW_KIND.DATA);
+    expect(dataRow?.cells[7]).toBe(2);
+    expect(dataRow?.cells[8]).toBe('readonly fixture');
+  });
+
   test('non-leaf criteria are skipped', () => {
     const schema: BewertungSchema = {
       children: {

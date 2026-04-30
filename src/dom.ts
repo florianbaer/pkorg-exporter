@@ -34,29 +34,83 @@ export function readDomScoresAndComments(dialog: Element): ScoreMap {
   const result: ScoreMap = {};
 
   for (const tr of dialog.querySelectorAll('tr.level-1')) {
-    const tds = tr.querySelectorAll('td');
-    if (tds.length < 3) continue;
-
-    const tdScores = tds[2];
+    const tds = directChildren(tr, 'TD');
     const tdLabel = tds[0];
-    if (!tdScores || !tdLabel) continue;
+    if (!tdLabel) continue;
 
-    const radios = tdScores.querySelectorAll<HTMLInputElement>('input[type="radio"]');
-    const checked = Array.from(radios).find((r) => r.checked);
-    const score = checked ? Number(checked.value) : null;
-
-    const radioName = radios[0]?.name ?? '';
-    const key = radioName.replace(/^grading-/, '').replace(/-$/, '');
-
-    const commentEl = tdLabel.querySelector<HTMLElement>('span.comment-body');
-    const comment = commentEl?.innerText?.trim() ?? '';
-
-    if (key) {
-      result[key] = { score, comment };
+    const radios = tr.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    let score: number | null;
+    let radioKey = '';
+    if (radios.length > 0) {
+      const checked = Array.from(radios).find((r) => r.checked);
+      score = checked ? Number(checked.value) : null;
+      radioKey = (radios[0]?.name ?? '').replace(/^grading-/, '').replace(/-$/, '');
+    } else {
+      score = extractReadonlyScore(tds);
     }
+
+    const nameSpan = directChildren(tdLabel, 'SPAN').find((el) =>
+      el.classList.contains('nl2br'),
+    );
+    const criterionName = nameSpan?.textContent?.trim() ?? '';
+
+    const comment = extractComments(tdLabel);
+
+    const entry = { score, comment };
+    if (radioKey) result[radioKey] = entry;
+    if (criterionName) result[criterionName] = entry;
   }
 
   return result;
+}
+
+function directChildren(el: Element, tagName: string): HTMLElement[] {
+  return Array.from(el.children).filter(
+    (c): c is HTMLElement => c.tagName === tagName,
+  );
+}
+
+function extractReadonlyScore(tds: HTMLElement[]): number | null {
+  for (const td of tds) {
+    const span = td.querySelector<HTMLElement>('span');
+    if (!span) continue;
+    const hasScoringMarker =
+      span.querySelector('.max-points') !== null ||
+      span.querySelector('.diff-value-text') !== null;
+    if (!hasScoringMarker) continue;
+    let directText = '';
+    for (const node of Array.from(span.childNodes)) {
+      if (node.nodeType === 3) directText += node.textContent ?? '';
+    }
+    const num = Number(directText.trim().replace(',', '.'));
+    if (Number.isFinite(num)) return num;
+  }
+  return null;
+}
+
+function extractComments(tdLabel: Element): string {
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  const paragraphs = directChildren(tdLabel, 'P').filter((p) =>
+    p.classList.contains('comment'),
+  );
+  if (paragraphs.length > 0) {
+    for (const p of paragraphs) {
+      const role = p.querySelector('strong')?.textContent?.replace(/:\s*$/, '').trim() ?? 'Comment';
+      const bodySpan =
+        p.querySelector<HTMLElement>('.comment-body span[ng-bind-html]') ??
+        p.querySelector<HTMLElement>('.comment-body');
+      const text = (bodySpan?.innerText ?? bodySpan?.textContent ?? '').trim();
+      if (!text) continue;
+      const key = `${role}::${text}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      parts.push(`${role}: ${text}`);
+    }
+    return parts.join('\n\n');
+  }
+  const bare = tdLabel.querySelector<HTMLElement>('span.comment-body');
+  return (bare?.innerText ?? bare?.textContent ?? '').trim();
 }
 
 export function getBewertungApiUrl(perf: Performance = performance): string | null {
