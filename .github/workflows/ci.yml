@@ -11,3 +11,15 @@ jobs:
       - run: bun run lint
       - run: bun test
       - run: bun run build
+      - name: Package Chrome extension
+        run: cd dist/chrome && zip -r ../../pkorg-exporter-chrome.zip .
+      - name: Package Firefox extension
+        run: cd dist/firefox && zip -r ../../pkorg-exporter-firefox.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pkorg-exporter-chrome
+          path: pkorg-exporter-chrome.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pkorg-exporter-firefox
+          path: pkorg-exporter-firefox.zip

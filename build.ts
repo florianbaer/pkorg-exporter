@@ -1,4 +1,27 @@
-import { copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+
+const TARGETS = ['chrome', 'firefox'] as const;
+type Target = (typeof TARGETS)[number];
+
+const baseManifest = JSON.parse(readFileSync('./manifest.json', 'utf8'));
+
+function manifestFor(target: Target): unknown {
+  if (target === 'firefox') {
+    return {
+      ...baseManifest,
+      browser_specific_settings: {
+        gecko: {
+          id: 'pkorg-exporter@local',
+          strict_min_version: '128.0',
+        },
+      },
+    };
+  }
+  return baseManifest;
+}
+
+rmSync('./dist', { recursive: true, force: true });
+mkdirSync('./dist', { recursive: true });
 
 const result = await Bun.build({
   entrypoints: ['./src/content.ts'],
@@ -15,16 +38,20 @@ if (!result.success) {
 }
 
 // Invariant: the bundle must load as a classic MV3 content script, so no
-// top-level import/export statements may survive bundling. Since the entry
-// has no `export`s and Bun inlines all internal imports, this should always
-// hold — the check catches regressions if someone later adds a top-level export.
-const out = readFileSync('./dist/content.js', 'utf8');
-if (/^(import|export)\s/m.test(out)) {
+// top-level import/export statements may survive bundling.
+const bundle = readFileSync('./dist/content.js', 'utf8');
+if (/^(import|export)\s/m.test(bundle)) {
   console.error('bundle leaked top-level import/export — entry file must not re-export');
   process.exit(1);
 }
 
-copyFileSync('./manifest.json', './dist/manifest.json');
-
-console.log(`built dist/content.js (${out.length} bytes)`);
-
+for (const target of TARGETS) {
+  const dir = `./dist/${target}`;
+  mkdirSync(dir, { recursive: true });
+  copyFileSync('./dist/content.js', `${dir}/content.js`);
+  writeFileSync(
+    `${dir}/manifest.json`,
+    `${JSON.stringify(manifestFor(target), null, 2)}\n`,
+  );
+  console.log(`built dist/${target}/ (${bundle.length} bytes)`);
+}
